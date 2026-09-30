@@ -15,7 +15,7 @@ from basicengine.utils.funciones import (
 @pytest.fixture(scope="session")
 
 def test_unir_productos_planuno():
-    productos = pd.createDataFrame(
+    productos = pd.DataFrame(
         [
             (1, "0182", "ES", 10),
             (2, "0182", "ES", 20),
@@ -28,7 +28,7 @@ def test_unir_productos_planuno():
         ],
     )
 
-    plan_uno = pd.createDataFrame(
+    plan_uno = pd.DataFrame(
         [
             (1, "0182", "ES", 25),
             (3, "0182", "ES", 40),
@@ -49,12 +49,12 @@ def test_unir_productos_planuno():
 
 
 def test_unir_transacciones_ficha():
-    transacciones = pd.createDataFrame(
+    transacciones = pd.DataFrame(
         [
             (1, "0001", "0182", "ES", "BASICO", "0100", "2529"),
             (2, "0002", "0182", "ES", "PREMIUM", "0200", "2530"),
         ],
-        [
+        columns=[
             "customer_id",
             "main_office_id",
             "entity_id",
@@ -65,11 +65,11 @@ def test_unir_transacciones_ficha():
         ],
     )
 
-    fichas = pd.createDataFrame(
+    fichas = pd.DataFrame(
         [
             (1, "0001"),
         ],
-        [
+        columns=[
             "customer_id",
             "main_office_id",
         ],
@@ -80,7 +80,7 @@ def test_unir_transacciones_ficha():
         fichas,
     )
 
-    filas = resultado.collect()
+    filas = list(resultado.itertuples(index=False))
 
     assert len(filas) == 1
     assert filas[0].customer_id == 1
@@ -101,20 +101,20 @@ def test_unir_transacciones_ficha():
     ],
 )
 def test_crear_rangos_edad(edad, categoria):
-    datos = pd.createDataFrame(
+    datos = pd.DataFrame(
         [(1, edad)],
-        ["customer_id", "age_number"],
+        columns=["customer_id", "age_number"],
     )
 
-    resultado = crear_rangos_edad(datos).collect()
+    resultado = list(crear_rangos_edad(datos).itertuples(index=False))
 
-    assert resultado[0].rangos_edad == categoria
+    assert resultado[0].age_group == categoria
 
 
 def test_crear_cubo_clientes():
-    productos = pd.createDataFrame(
+    productos = pd.DataFrame(
         [(1, "0182", "ES", 10)],
-        [
+        columns=[
             "customer_id",
             "entity_id",
             "country_id",
@@ -122,9 +122,9 @@ def test_crear_cubo_clientes():
         ],
     )
 
-    plan_uno = pd.createDataFrame(
+    plan_uno = pd.DataFrame(
         [(1, "0182", "ES", 40, "A", "8", "BASICO", "0100")],
-        [
+        columns=[
             "customer_id",
             "entity_id",
             "country_id",
@@ -136,9 +136,9 @@ def test_crear_cubo_clientes():
         ],
     )
 
-    transacciones = pd.createDataFrame(
+    transacciones = pd.DataFrame(
         [(1, "0001", "0182", "ES", "OTRO", "9999", "2529")],
-        [
+        columns=[
             "customer_id",
             "main_office_id",
             "entity_id",
@@ -149,9 +149,9 @@ def test_crear_cubo_clientes():
         ],
     )
 
-    fichas = pd.createDataFrame(
+    fichas = pd.DataFrame(
         [(1, "0001")],
-        ["customer_id", "main_office_id"],
+        columns=["customer_id", "main_office_id"],
     )
 
     resultado = crear_cubo_clientes(
@@ -161,9 +161,10 @@ def test_crear_cubo_clientes():
         fichas,
     )
 
-    fila = resultado.collect()[0]
+    filas = list(resultado.itertuples(index=False))
+    fila = filas[0]
 
     assert fila.customer_id == 1
-    assert fila.rangos_edad == "adulto"
+    assert fila.age_group == "adulto"
     assert fila.level50_territorial_id == "2529"
     assert fila.segment_global_group_desc == "BASICO"

@@ -7,7 +7,7 @@ OUTPUT_COLUMNS = [
     "customer_id",
     "entity_id",
     "country_id",
-    "rangos_edad",
+    "age_group",
     "level50_territorial_id",
     "status_type",
     "global_segment_id",
@@ -21,7 +21,7 @@ def unir_productos_planuno(
     df_plan_uno: pd.DataFrame,
 ) -> pd.DataFrame:
     """Une la información de productos con la información de Plan Uno."""
-    return df_productos.join(
+    return df_productos.merge(
         df_plan_uno,
         on=JOIN_KEYS,
         how="inner",
@@ -33,15 +33,14 @@ def unir_transacciones_ficha(
     df_fich: pd.DataFrame,
 ) -> pd.DataFrame:
     """Conserva las transacciones que tienen correspondencia en la ficha."""
-    df_transac_fich = df_transac.join(
+    df_transac_fich = df_transac.merge(
         df_fich,
         on=["customer_id", "main_office_id"],
         how="inner",
     )
 
     return df_transac_fich.drop(
-        "segment_global_group_desc",
-        "main_branch_id",
+        columns=["segment_global_group_desc", "main_branch_id"]
     )
 
 
@@ -54,7 +53,7 @@ def crear_rangos_edad(df: pd.DataFrame) -> pd.DataFrame:
         df["age_number"].between(26, 35),
         df["age_number"].between(36, 50),
         df["age_number"].between(51, 65),
-        df["age_number"].between(66, 90)
+        df["age_number"].between(66, 90),
     ]
 
     values = [
@@ -63,15 +62,16 @@ def crear_rangos_edad(df: pd.DataFrame) -> pd.DataFrame:
         "joven adulto",
         "adulto",
         "comienzo vejez",
-        "jubilado"
+        "jubilado",
     ]
 
     df["age_group"] = np.select(
         conditions,
         values,
-        default="fuera de rango"
+        default="fuera de rango",
     )
-    return np.select(conditions, values, default="fuera de rango")
+
+    return df
 
 
 def crear_cubo_clientes(
@@ -91,7 +91,7 @@ def crear_cubo_clientes(
         df_fich,
     )
 
-    df_final = df_producto_plan_uno.join(
+    df_final = df_producto_plan_uno.merge(
         df_transac_fich,
         on=JOIN_KEYS,
         how="inner",
@@ -99,4 +99,4 @@ def crear_cubo_clientes(
 
     df_final = crear_rangos_edad(df_final)
 
-    return df_final.select(*OUTPUT_COLUMNS)
+    return df_final[OUTPUT_COLUMNS]
