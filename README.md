@@ -1,4 +1,4 @@
-# Basicengine intermedio
+#Scaffold intermedio
 
 Proyecto PySpark basado en el Caso de Uso 4 del laboratorio.
 
@@ -11,8 +11,8 @@ El engine:
 
 ## Estructura
 
-- `basicengine/app.py`: punto de entrada.
-- `basicengine/utils/funciones.py`: transformaciones PySpark.
+- `scafoldintermedio/app.py`: punto de entrada.
+- `scafoldintermedio/utils/funciones.py`: transformaciones PySpark.
 - `tests/test_app.py`: tests unitarios.
 - `resources/application.conf`: configuración de rutas.
 - `data/input`: datos de entrada locales.
