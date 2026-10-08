@@ -4,7 +4,7 @@ import sys
 import pytest
 import pandas as pd
 
-from basicengine.utils.funciones import (
+from scafoldintermedio.utils.funciones import (
     crear_cubo_clientes,
     crear_rangos_edad,
     unir_productos_planuno,
